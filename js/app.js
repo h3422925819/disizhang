@@ -61,22 +61,38 @@ class DataVisualizationPlatform {
     }
 
     loadDefaultData() {
-        // 示例数据
-        this.currentData = {
-            categories: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-            series: [
-                {
-                    name: '销售额',
-                    data: [820, 932, 901, 934, 1290, 1330, 1320, 801, 102, 230, 432, 789],
-                    type: 'line'
-                },
-                {
-                    name: '用户数',
-                    data: [120, 132, 101, 134, 290, 230, 220, 182, 191, 234, 290, 330],
-                    type: 'line'
-                }
-            ]
-        };
+        // 尝试加载默认数据文件，如果失败则使用内置数据
+        fetch('./data/sample-data.json')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                this.currentData = data;
+                this.updateChart();
+                this.renderDataTable();
+            })
+            .catch(error => {
+                console.log('使用内置默认数据:', error);
+                // 使用内置示例数据
+                this.currentData = {
+                    categories: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                    series: [
+                        {
+                            name: '销售额',
+                            data: [820, 932, 901, 934, 1290, 1330, 1320, 801, 102, 230, 432, 789],
+                            type: 'line'
+                        },
+                        {
+                            name: '用户数',
+                            data: [120, 132, 101, 134, 290, 230, 220, 182, 191, 234, 290, 330],
+                            type: 'line'
+                        }
+                    ]
+                };
+                this.updateChart();
+                this.renderDataTable();
+            });
     }
 
     // 渲染数据表格
