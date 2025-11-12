@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据可视化交互平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>数据可视化交互平台</h1>
+            <p>探索数据之美 - 支持多种图表类型和样式自定义</p>
+        </header>
+
+        <div class="control-panel">
+            <div class="chart-type-selector">
+                <label for="chartType">图表类型:</label>
+                <select id="chartType">
+                    <option value="line">折线图</option>
+                    <option value="bar">柱状图</option>
+                    <option value="pie">饼图</option>
+                    <option value="scatter">散点图</option>
+                    <option value="radar">雷达图</option>
+                </select>
+            </div>
+
+            <div class="style-controls">
+                <div class="control-group">
+                    <label for="colorScheme">配色方案:</label>
+                    <select id="colorScheme">
+                        <option value="default">默认</option>
+                        <option value="warm">暖色调</option>
+                        <option value="cool">冷色调</option>
+                        <option value="pastel">柔和色</option>
+                        <option value="vibrant">鲜艳色</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="fontFamily">字体设置:</label>
+                    <select id="fontFamily">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Microsoft YaHei', sans-serif">微软雅黑</option>
+                        <option value="'SimSun', serif">宋体</option>
+                        <option value="'Helvetica Neue', sans-serif">Helvetica</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="fontSize">字体大小:</label>
+                    <input type="range" id="fontSize" min="12" max="24" value="14">
+                    <span id="fontSizeValue">14px</span>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="showDataLabels" checked>
+                        显示数据标签
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="showGrid" checked>
+                        显示网格线
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label for="lineWidth">线条粗细:</label>
+                    <input type="range" id="lineWidth" min="1" max="10" value="2">
+                    <span id="lineWidthValue">2px</span>
+                </div>
+            </div>
+
+            <button id="resetBtn" class="btn reset">重置设置</button>
+            <button id="exportBtn" class="btn export">导出图片</button>
+        </div>
+
+        <div class="chart-container">
+            <div id="mainChart" class="chart"></div>
+            <div class="chart-info">
+                <div class="chart-stats">
+                    <span>数据点: <span id="dataPoints">0</span></span>
+                    <span>更新时间: <span id="updateTime">-</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-controls">
+            <h3>数据管理</h3>
+            
+            <!-- 数据表格编辑区域 -->
+            <div class="data-editor">
+                <h4>数据表格编辑</h4>
+                <div class="table-controls">
+                    <button id="addRowBtn" class="btn primary">添加行</button>
+                    <button id="addColumnBtn" class="btn primary">添加列</button>
+                    <button id="removeRowBtn" class="btn secondary">删除行</button>
+                    <button id="removeColumnBtn" class="btn secondary">删除列</button>
+                </div>
+                <div class="data-table-container">
+                    <table id="dataTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>分类</th>
+                                <!-- 列标题将由JavaScript动态生成 -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 表格内容将由JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 原有JSON数据输入区域 -->
+            <div class="data-input">
+                <h4>JSON数据输入</h4>
+                <textarea id="customData" placeholder="输入自定义数据 (JSON格式)" rows="4"></textarea>
+                <div class="button-group">
+                    <button id="loadDataBtn" class="btn primary">加载数据</button>
+                    <button id="randomDataBtn" class="btn secondary">生成随机数据</button>
+                    <button id="updateFromTableBtn" class="btn export">从表格更新</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 数据可视化平台 | 基于 ECharts 构建</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
