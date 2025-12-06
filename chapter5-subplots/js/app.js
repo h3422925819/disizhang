@@ -63,9 +63,9 @@ const dataSources = {
 };
 
 // 初始化函数
-function initializeApp() {
-    loadDataSources();
+async function initializeApp() {
     setupEventListeners();
+    await loadDataSources(); // 等待数据加载完成
     generateInitialLayout();
 }
 
@@ -100,6 +100,10 @@ async function loadDataSources() {
         }
         
         console.log('数据加载完成:', Object.keys(chartsData));
+        console.log('工厂数据:', chartsData.factory);
+        console.log('气候数据:', chartsData.climate);
+        console.log('销售数据:', chartsData.sales);
+        console.log('混合数据:', chartsData.mixed);
     } catch (error) {
         console.error('数据加载失败:', error);
         // 使用模拟数据作为备用
@@ -394,28 +398,21 @@ function applyDataToCharts() {
     const data = chartsData[dataSource];
     
     console.log('应用数据源:', dataSource, '数据:', data);
+    console.log('当前图表实例数量:', chartInstances.length);
     
     if (!data) {
         console.error('数据源不存在:', dataSource);
         return;
     }
     
-    // 更新所有图表的配置和类型
-    chartInstances.forEach(({id, instance, type}) => {
-        // 重新获取当前应该使用的图表类型
-        const newType = getChartTypeForIndex(id, currentLayout);
+    // 更新所有图表的配置
+    chartInstances.forEach(({id, instance}) => {
+        // 获取当前应该使用的图表类型
+        const chartType = getChartTypeForIndex(id, currentLayout);
         
-        console.log(`图表 ${id}: 类型 ${type} -> ${newType}`);
+        console.log(`图表 ${id}: 类型 ${chartType}`);
         
-        // 如果图表类型发生变化，更新实例的类型信息
-        if (type !== newType) {
-            const index = chartInstances.findIndex(chart => chart.id === id);
-            if (index !== -1) {
-                chartInstances[index].type = newType;
-            }
-        }
-        
-        const option = getChartOption(newType, data, id);
+        const option = getChartOption(chartType, data, id);
         instance.setOption(option, true);
     });
 }
@@ -441,38 +438,53 @@ function getChartOption(chartType, data, index) {
     
     // 根据数据源获取合适的数据
     function getDataForChart(data) {
-        if (data.production) {
+        console.log('处理数据结构:', data);
+        
+        if (data.production && Array.isArray(data.production)) {
             return {
-                xData: data.production.map(item => item.department),
-                yData: data.production.map(item => item.output),
+                xData: data.production.map(item => item.department || '部门' + item.index),
+                yData: data.production.map(item => item.output || 0),
                 seriesName: '产量'
             };
-        } else if (data.monthly) {
+        } else if (data.monthly && Array.isArray(data.monthly)) {
             return {
-                xData: data.monthly.map(item => item.month),
-                yData: data.monthly.map(item => item.production || item.temperature || item.revenue),
-                seriesName: data.monthly[0].production ? '月产量' : data.monthly[0].temperature ? '温度' : '收入'
+                xData: data.monthly.map(item => item.month || '月' + item.index),
+                yData: data.monthly.map(item => item.production || item.temperature || item.revenue || 0),
+                seriesName: data.monthly[0]?.production ? '月产量' : 
+                         data.monthly[0]?.temperature ? '温度' : '收入'
             };
-        } else if (data.hourly) {
+        } else if (data.hourly && Array.isArray(data.hourly)) {
             return {
-                xData: data.hourly.map(item => item.time),
-                yData: data.hourly.map(item => item.temperature),
+                xData: data.hourly.map(item => item.time || '时' + item.index),
+                yData: data.hourly.map(item => item.temperature || 0),
                 seriesName: '温度'
             };
-        } else if (data.quarterly) {
+        } else if (data.daily && Array.isArray(data.daily)) {
             return {
-                xData: data.quarterly.map(item => item.quarter),
-                yData: data.quarterly.map(item => item.revenue),
+                xData: data.daily.map(item => item.day || '日' + item.index),
+                yData: data.daily.map(item => item.high || 0),
+                seriesName: '最高温度'
+            };
+        } else if (data.quarterly && Array.isArray(data.quarterly)) {
+            return {
+                xData: data.quarterly.map(item => item.quarter || 'Q' + item.index),
+                yData: data.quarterly.map(item => item.revenue || 0),
                 seriesName: '收入'
             };
-        } else if (data.categories) {
+        } else if (data.categories && Array.isArray(data.categories)) {
             return {
-                xData: data.categories.map(item => item.name),
-                yData: data.categories.map(item => item.value1),
+                xData: data.categories.map(item => item.name || '类别' + item.index),
+                yData: data.categories.map(item => item.value1 || item.value || 0),
                 seriesName: '数值'
             };
+        } else if (data.products && Array.isArray(data.products)) {
+            return {
+                xData: data.products.map(item => item.product || '产品' + item.index),
+                yData: data.products.map(item => item.sales || 0),
+                seriesName: '销量'
+            };
         } else {
-            // 默认数据
+            // 默认数据 - 确保始终有数据
             const defaultX = ['A', 'B', 'C', 'D', 'E'];
             return {
                 xData: defaultX,
@@ -692,7 +704,8 @@ function toggleFullscreen() {
 
 // 更新图表类型
 function updateChartType() {
-    applyDataToCharts();
+    // 重新生成布局以确保图表类型正确
+    generateLayout();
 }
 
 // 更新布局类型
