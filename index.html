@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4章 图表样式美化 - 数据可视化</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;500;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>第4章 图表样式美化</h1>
+            <p>数据可视化样式优化与美化实践</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- 控制面板 -->
+            <section class="control-panel">
+                <h2>图表样式控制面板</h2>
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="chartType">图表类型:</label>
+                        <select id="chartType">
+                            <option value="bar">柱状图</option>
+                            <option value="line">折线图</option>
+                            <option value="pie">饼图</option>
+                            <option value="scatter">散点图</option>
+                            <option value="radar">雷达图</option>
+                            <option value="area">面积图</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="colorScheme">配色方案:</label>
+                        <select id="colorScheme">
+                            <option value="default">默认</option>
+                            <option value="ocean">海洋</option>
+                            <option value="sunset">日落</option>
+                            <option value="forest">森林</option>
+                            <option value="rainbow">彩虹</option>
+                            <option value="monochrome">单色</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="animation">动画效果:</label>
+                        <select id="animation">
+                            <option value="none">无动画</option>
+                            <option value="bounce">弹跳</option>
+                            <option value="fade">渐变</option>
+                            <option value="slide">滑动</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="fontFamily">字体设置:</label>
+                        <select id="fontFamily">
+                            <option value="default">默认字体</option>
+                            <option value="inter">Inter</option>
+                            <option value="roboto">Roboto</option>
+                            <option value="opensans">Open Sans</option>
+                            <option value="system">系统字体</option>
+                            <option value="noto">Noto Sans</option>
+                            <option value="lato">Lato</option>
+                            <option value="montserrat">Montserrat</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="fontSize">字体大小:</label>
+                        <select id="fontSize">
+                            <option value="small">小</option>
+                            <option value="medium" selected>中</option>
+                            <option value="large">大</option>
+                            <option value="xlarge">特大</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="gridLines">网格线:</label>
+                        <input type="checkbox" id="gridLines" checked>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="dataLabels">数据标签:</label>
+                        <input type="checkbox" id="dataLabels">
+                    </div>
+                    
+                    <div class="control-group">
+                        <button id="applyStyles" class="btn-primary">应用样式</button>
+                    </div>
+                </div>
+                
+                <!-- 数据源选择 -->
+                <div class="data-source-section">
+                    <h3>数据源选择</h3>
+                    <div class="data-options">
+                        <button class="data-btn active" onclick="loadDataSet('revenue')">📈 收入分析</button>
+                        <button class="data-btn" onclick="loadDataSet('market')">🥧 市场份额</button>
+                        <button class="data-btn" onclick="loadDataSet('performance')">📊 绩效评估</button>
+                        <button class="data-btn" onclick="loadDataSet('products')">📱 产品销售</button>
+                        <button class="data-btn" onclick="loadDataSet('satisfaction')">😊 用户满意度</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 图表展示区域 -->
+            <section class="charts-section">
+                <h2>图表展示区域</h2>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 id="chartTitle">数据可视化图表</h3>
+                        <div class="chart-actions">
+                            <button class="btn-secondary" onclick="resetChart()">重置</button>
+                            <button class="btn-secondary" onclick="exportChart()">导出</button>
+                            <button class="btn-secondary" onclick="toggleFullscreen()">全屏</button>
+                        </div>
+                    </div>
+                    <div id="mainChart" class="chart-box"></div>
+                </div>
+            </section>
+
+            <!-- 风格预设按钮 -->
+            <section class="presets-button-section">
+                <h2>风格预设模板</h2>
+                <div class="preset-buttons">
+                    <button class="preset-btn business-btn" onclick="applyPreset('business')">
+                        <span class="preset-icon">💼</span>
+                        <span class="preset-text">商业智能</span>
+                    </button>
+                    <button class="preset-btn creative-btn" onclick="applyPreset('creative')">
+                        <span class="preset-icon">🎨</span>
+                        <span class="preset-text">创意展示</span>
+                    </button>
+                    <button class="preset-btn academic-btn" onclick="applyPreset('academic')">
+                        <span class="preset-icon">🎓</span>
+                        <span class="preset-text">学术研究</span>
+                    </button>
+                    <button class="preset-btn tech-btn" onclick="applyPreset('tech')">
+                        <span class="preset-icon">🚀</span>
+                        <span class="preset-text">科技趋势</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 第4章 图表样式美化 - 数据可视化项目</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+{
+  "title": "第4章图表样式美化示例数据",
+  "description": "用于演示图表样式美化的示例数据集",
+  "datasets": {
+    "quarterly_data": [
+      {
+        "name": "Q1季度",
+        "value": 120,
+        "category": "销售额"
+      },
+      {
+        "name": "Q2季度", 
+        "value": 180,
+        "category": "销售额"
+      },
+      {
+        "name": "Q3季度",
+        "value": 150,
+        "category": "销售额"
+      },
+      {
+        "name": "Q4季度",
+        "value": 200,
+        "category": "销售额"
+      },
+      {
+        "name": "Q1季度",
+        "value": 90,
+        "category": "成本"
+      },
+      {
+        "name": "Q2季度",
+        "value": 120,
+        "category": "成本"
+      },
+      {
+        "name": "Q3季度",
+        "value": 110,
+        "category": "成本"
+      },
+      {
+        "name": "Q4季度",
+        "value": 140,
+        "category": "成本"
+      }
+    ],
+    "product_sales": [
+      {
+        "name": "产品A",
+        "value": 320,
+        "category": "电子产品"
+      },
+      {
+        "name": "产品B",
+        "value": 280,
+        "category": "电子产品"
+      },
+      {
+        "name": "产品C",
+        "value": 195,
+        "category": "家居用品"
+      },
+      {
+        "name": "产品D",
+        "value": 156,
+        "category": "家居用品"
+      },
+      {
+        "name": "产品E",
+        "value": 245,
+        "category": "服装配饰"
+      },
+      {
+        "name": "产品F",
+        "value": 188,
+        "category": "服装配饰"
+      },
+      {
+        "name": "产品G",
+        "value": 267,
+        "category": "食品饮料"
+      },
+      {
+        "name": "产品H",
+        "value": 134,
+        "category": "食品饮料"
+      }
+    ],
+    "market_share": [
+      {
+        "name": "品牌A",
+        "value": 35.2,
+        "category": "市场份额"
+      },
+      {
+        "name": "品牌B",
+        "value": 28.7,
+        "category": "市场份额"
+      },
+      {
+        "name": "品牌C",
+        "value": 18.3,
+        "category": "市场份额"
+      },
+      {
+        "name": "品牌D",
+        "value": 10.8,
+        "category": "市场份额"
+      },
+      {
+        "name": "其他",
+        "value": 7.0,
+        "category": "市场份额"
+      }
+    ],
+    "performance_metrics": [
+      {
+        "name": "1月",
+        "value": 85,
+        "category": "效率指标"
+      },
+      {
+        "name": "2月",
+        "value": 92,
+        "category": "效率指标"
+      },
+      {
+        "name": "3月",
+        "value": 88,
+        "category": "效率指标"
+      },
+      {
+        "name": "4月",
+        "value": 95,
+        "category": "效率指标"
+      },
+      {
+        "name": "5月",
+        "value": 98,
+        "category": "效率指标"
+      },
+      {
+        "name": "6月",
+        "value": 103,
+        "category": "效率指标"
+      },
+      {
+        "name": "1月",
+        "value": 45,
+        "category": "质量指标"
+      },
+      {
+        "name": "2月",
+        "value": 48,
+        "category": "质量指标"
+      },
+      {
+        "name": "3月",
+        "value": 52,
+        "category": "质量指标"
+      },
+      {
+        "name": "4月",
+        "value": 58,
+        "category": "质量指标"
+      },
+      {
+        "name": "5月",
+        "value": 63,
+        "category": "质量指标"
+      },
+      {
+        "name": "6月",
+        "value": 71,
+        "category": "质量指标"
+      }
+    ],
+    "regional_data": [
+      {
+        "name": "华北地区",
+        "value": 420,
+        "category": "区域销售"
+      },
+      {
+        "name": "华东地区",
+        "value": 580,
+        "category": "区域销售"
+      },
+      {
+        "name": "华南地区",
+        "value": 390,
+        "category": "区域销售"
+      },
+      {
+        "name": "西南地区",
+        "value": 265,
+        "category": "区域销售"
+      },
+      {
+        "name": "西北地区",
+        "value": 180,
+        "category": "区域销售"
+      },
+      {
+        "name": "东北地区",
+        "value": 145,
+        "category": "区域销售"
+      }
+    ]
+  },
+  "metadata": {
+    "created_date": "2024-12-05",
+    "version": "1.0",
+    "description": "第4章图表样式美化项目示例数据",
+    "data_types": ["时间序列数据", "分类数据", "比例数据", "地理数据"],
+    "chart_types": ["柱状图", "折线图", "饼图", "散点图", "雷达图", "面积图"]
+  }
+}
