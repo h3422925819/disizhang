@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化版 - 第5章 子图绘制</title>
+    <link rel="stylesheet" href="simple-style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>第5章 子图绘制 (简化版)</h1>
+            <p>多图表布局与子图组合可视化技术</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- 控制面板 -->
+            <section class="control-panel">
+                <h2>子图布局控制</h2>
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="chartTypeSelect">统一图表类型:</label>
+                        <select id="chartTypeSelect" onchange="updateAllCharts()">
+                            <option value="bar">柱状图</option>
+                            <option value="line">折线图</option>
+                            <option value="pie">饼图</option>
+                            <option value="scatter">散点图</option>
+                            <option value="area">面积图</option>
+                            <option value="radar">雷达图</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="dataSourceSelect">数据源:</label>
+                        <select id="dataSourceSelect" onchange="updateAllCharts()">
+                            <option value="factory">工厂生产数据</option>
+                            <option value="climate">气候环境数据</option>
+                            <option value="sales">销售业绩数据</option>
+                            <option value="mixed">混合数据集</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button onclick="createGridLayout(2, 2)" class="btn-primary">生成2x2布局</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button onclick="testCurrentState()" class="btn-secondary">测试当前状态</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 子图展示区域 -->
+            <section class="subplots-section">
+                <h2>子图展示区域</h2>
+                <div id="subplotsContainer" class="subplots-container">
+                    <!-- 子图将在这里生成 -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // 全局变量
+        let charts = [];
+        let currentData = null;
+        
+        // 数据源
+        const dataSources = {
+            factory: {
+                production: [
+                    {department: '生产一部', output: 4500, quality: 92},
+                    {department: '生产二部', output: 3800, quality: 88},
+                    {department: '生产三部', output: 5200, quality: 95},
+                    {department: '质量部', output: 1200, quality: 98},
+                    {department: '包装部', output: 2800, quality: 90}
+                ],
+                monthly: [
+                    {month: '1月', production: 15000, cost: 30000},
+                    {month: '2月', production: 18000, cost: 35000},
+                    {month: '3月', production: 16000, cost: 32000},
+                    {month: '4月', production: 19000, cost: 36000}
+                ]
+            },
+            climate: {
+                hourly: [
+                    {time: '00:00', temperature: 22.5, humidity: 65},
+                    {time: '06:00', temperature: 21.0, humidity: 70},
+                    {time: '12:00', temperature: 28.5, humidity: 55},
+                    {time: '18:00', temperature: 25.2, humidity: 60}
+                ],
+                daily: [
+                    {day: '周一', high: 28, low: 20, rainfall: 2.5},
+                    {day: '周二', high: 30, low: 22, rainfall: 0},
+                    {day: '周三', high: 29, low: 21, rainfall: 1.2}
+                ],
+                monthly: [
+                    {month: '1月', temperature: 5.2, rainfall: 45},
+                    {month: '2月', temperature: 7.8, rainfall: 52},
+                    {month: '3月', temperature: 12.5, rainfall: 68}
+                ]
+            },
+            sales: {
+                quarterly: [
+                    {quarter: 'Q1', revenue: 80000, profit: 20000},
+                    {quarter: 'Q2', revenue: 95000, profit: 25000},
+                    {quarter: 'Q3', revenue: 88000, profit: 22000},
+                    {quarter: 'Q4', revenue: 102000, profit: 28000}
+                ],
+                products: [
+                    {product: '产品A', sales: 5000, profit: 1000},
+                    {product: '产品B', sales: 3000, profit: 800},
+                    {product: '产品C', sales: 4500, profit: 900}
+                ],
+                monthly: [
+                    {month: '1月', revenue: 25000, customers: 200},
+                    {month: '2月', revenue: 28000, customers: 220},
+                    {month: '3月', revenue: 26000, customers: 210}
+                ]
+            },
+            mixed: {
+                categories: [
+                    {name: '类别A', value1: 100, value2: 80, value3: 60},
+                    {name: '类别B', value1: 150, value2: 120, value3: 90},
+                    {name: '类别C', value1: 80, value2: 70, value3: 50}
+                ],
+                comparison: [
+                    {series1: 10, series2: 8, series3: 6},
+                    {series1: 15, series2: 12, series3: 9},
+                    {series1: 8, series2: 6, series3: 4}
+                ],
+                monthly: [
+                    {month: '1月', value: 50},
+                    {month: '2月', value: 75},
+                    {month: '3月', value: 60}
+                ]
+            }
+        };
+        
+        // 创建网格布局
+        function createGridLayout(rows, cols) {
+            console.log(`创建 ${rows}x${cols} 布局`);
+            
+            const container = document.getElementById('subplotsContainer');
+            container.innerHTML = '';
+            container.className = 'subplots-container layout-grid';
+            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            // 清除现有图表
+            charts.forEach(chart => chart.dispose());
+            charts = [];
+            
+            // 创建新图表
+            for (let i = 0; i < rows * cols; i++) {
+                const subplot = createSubplot(i);
+                container.appendChild(subplot);
+            }
+            
+            // 初始加载数据
+            setTimeout(() => {
+                updateAllCharts();
+            }, 100);
+        }
+        
+        // 创建子图
+        function createSubplot(index) {
+            const subplot = document.createElement('div');
+            subplot.className = 'subplot';
+            subplot.id = `subplot-${index}`;
+            
+            subplot.innerHTML = `
+                <div class="subplot-header">
+                    <span class="subplot-title">图表 ${index + 1}</span>
+                </div>
+                <div id="chart-${index}" class="subplot-chart"></div>
+            `;
+            
+            // 延迟创建图表实例
+            setTimeout(() => {
+                const chartDom = document.getElementById(`chart-${index}`);
+                if (chartDom) {
+                    const chart = echarts.init(chartDom);
+                    charts.push({
+                        id: index,
+                        instance: chart,
+                        dom: chartDom
+                    });
+                    console.log(`图表实例创建: index=${index}`);
+                }
+            }, 50);
+            
+            return subplot;
+        }
+        
+        // 更新所有图表
+        function updateAllCharts() {
+            console.log('=== 更新所有图表 ===');
+            
+            const chartType = document.getElementById('chartTypeSelect').value;
+            const dataSource = document.getElementById('dataSourceSelect').value;
+            
+            console.log(`图表类型: ${chartType}`);
+            console.log(`数据源: ${dataSource}`);
+            
+            currentData = dataSources[dataSource];
+            if (!currentData) {
+                console.error('数据源不存在:', dataSource);
+                return;
+            }
+            
+            console.log('使用的数据:', currentData);
+            
+            // 等待所有图表创建完成
+            setTimeout(() => {
+                charts.forEach((chartObj, index) => {
+                    console.log(`\n--- 更新图表 ${index} ---`);
+                    
+                    const option = getChartOption(chartType, currentData, index);
+                    console.log(`图表 ${index} 配置:`, option);
+                    
+                    try {
+                        chartObj.instance.setOption(option, true);
+                        console.log(`图表 ${index} 更新成功`);
+                    } catch (error) {
+                        console.error(`图表 ${index} 更新失败:`, error);
+                    }
+                });
+            }, 200);
+        }
+        
+        // 获取图表配置
+        function getChartOption(chartType, data, index) {
+            console.log(`生成配置: type=${chartType}, index=${index}`);
+            
+            // 根据数据源获取合适的数据
+            let chartData;
+            if (data.production) {
+                chartData = {
+                    xData: data.production.map(item => item.department),
+                    yData: data.production.map(item => item.output),
+                    seriesName: '产量'
+                };
+            } else if (data.monthly) {
+                chartData = {
+                    xData: data.monthly.map(item => item.month),
+                    yData: data.monthly.map(item => 
+                        item.production || item.temperature || item.revenue || item.value || 50
+                    ),
+                    seriesName: data.monthly[0]?.production ? '月产量' : 
+                             data.monthly[0]?.temperature ? '温度' : 
+                             data.monthly[0]?.revenue ? '月收入' : '月数值'
+                };
+            } else if (data.categories) {
+                chartData = {
+                    xData: data.categories.map(item => item.name),
+                    yData: data.categories.map(item => item.value1 || item.value || 50),
+                    seriesName: '数值'
+                };
+            } else if (data.quarterly) {
+                chartData = {
+                    xData: data.quarterly.map(item => item.quarter),
+                    yData: data.quarterly.map(item => item.revenue),
+                    seriesName: '收入'
+                };
+            } else if (data.products) {
+                chartData = {
+                    xData: data.products.map(item => item.product),
+                    yData: data.products.map(item => item.sales),
+                    seriesName: '销量'
+                };
+            } else {
+                // 默认数据
+                chartData = {
+                    xData: ['A', 'B', 'C', 'D', 'E'],
+                    yData: [100, 150, 120, 200, 180],
+                    seriesName: '数据'
+                };
+            }
+            
+            console.log(`处理后的数据:`, chartData);
+            
+            // 根据图表类型生成配置
+            switch (chartType) {
+                case 'bar':
+                    return {
+                        xAxis: { type: 'category', data: chartData.xData },
+                        yAxis: { type: 'value' },
+                        series: [{ name: chartData.seriesName, type: 'bar', data: chartData.yData }]
+                    };
+                    
+                case 'line':
+                    return {
+                        xAxis: { type: 'category', data: chartData.xData },
+                        yAxis: { type: 'value' },
+                        series: [{ name: chartData.seriesName, type: 'line', smooth: true, data: chartData.yData }]
+                    };
+                    
+                case 'pie':
+                    const pieData = chartData.xData.map((name, i) => ({ name, value: chartData.yData[i] }));
+                    return {
+                        series: [{ name: '占比', type: 'pie', radius: '65%', data: pieData }]
+                    };
+                    
+                case 'scatter':
+                    const scatterData = chartData.yData.map((value, i) => [i + 1, value]);
+                    return {
+                        xAxis: { type: 'value' },
+                        yAxis: { type: 'value' },
+                        series: [{ name: '数据点', type: 'scatter', data: scatterData }]
+                    };
+                    
+                case 'area':
+                    return {
+                        xAxis: { type: 'category', data: chartData.xData },
+                        yAxis: { type: 'value' },
+                        series: [{ name: chartData.seriesName, type: 'line', smooth: true, areaStyle: {}, data: chartData.yData }]
+                    };
+                    
+                case 'radar':
+                    return {
+                        radar: {
+                            indicator: chartData.xData.map(name => ({ name, max: 100 }))
+                        },
+                        series: [{
+                            name: chartData.seriesName,
+                            type: 'radar',
+                            data: [{ value: chartData.yData.slice(0, 5), name: '数据组' }]
+                        }]
+                    };
+                    
+                default:
+                    return {
+                        xAxis: { type: 'category', data: chartData.xData },
+                        yAxis: { type: 'value' },
+                        series: [{ name: chartData.seriesName, type: 'bar', data: chartData.yData }]
+                    };
+            }
+        }
+        
+        // 测试当前状态
+        function testCurrentState() {
+            console.log('=== 测试当前状态 ===');
+            
+            const chartType = document.getElementById('chartTypeSelect').value;
+            const dataSource = document.getElementById('dataSourceSelect').value;
+            
+            console.log('选择的图表类型:', chartType);
+            console.log('选择的数据源:', dataSource);
+            console.log('当前数据:', currentData);
+            console.log('图表实例数量:', charts.length);
+            
+            charts.forEach((chart, i) => {
+                console.log(`图表 ${i}:`, {
+                    id: chart.id,
+                    hasInstance: !!chart.instance,
+                    hasDom: !!chart.dom,
+                    isDisposed: chart.instance ? chart.instance.isDisposed() : true
+                });
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            console.log('简化版页面加载完成');
+            createGridLayout(2, 2);
+        };
+    </script>
+</body>
+</html>
