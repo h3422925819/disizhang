@@ -85,7 +85,7 @@ async function loadDataSources() {
             chartsData.climate = await climateResponse.json();
         }
         
-        // 生成模拟数据（用于演示）
+        // 生成模拟数据（确保所有数据源都有数据）
         if (!chartsData.factory) {
             chartsData.factory = generateFactoryData();
         }
@@ -98,6 +98,15 @@ async function loadDataSources() {
         if (!chartsData.mixed) {
             chartsData.mixed = generateMixedData();
         }
+        
+        console.log('数据加载完成:', Object.keys(chartsData));
+    } catch (error) {
+        console.error('数据加载失败:', error);
+        // 使用模拟数据作为备用
+        chartsData.factory = generateFactoryData();
+        chartsData.climate = generateClimateData();
+        chartsData.sales = generateSalesData();
+        chartsData.mixed = generateMixedData();
         
     } catch (error) {
         console.error('数据加载失败:', error);
@@ -336,7 +345,12 @@ function getChartTypeForIndex(index, layoutType) {
     const chartTypes = ['bar', 'line', 'pie', 'scatter', 'area', 'radar'];
     
     // 检查用户是否选择了统一图表类型
-    const selectedChartType = document.getElementById('chartType').value;
+    const chartTypeSelect = document.getElementById('chartType');
+    if (!chartTypeSelect) {
+        return 'bar'; // 备用方案
+    }
+    
+    const selectedChartType = chartTypeSelect.value;
     if (selectedChartType !== 'auto') {
         return selectedChartType;
     }
@@ -373,15 +387,25 @@ function getChartTitle(chartType, index) {
 
 // 应用数据到图表
 function applyDataToCharts() {
-    const dataSource = document.getElementById('dataSource').value;
+    const dataSourceSelect = document.getElementById('dataSource');
+    if (!dataSourceSelect) return;
+    
+    const dataSource = dataSourceSelect.value;
     const data = chartsData[dataSource];
     
-    if (!data) return;
+    console.log('应用数据源:', dataSource, '数据:', data);
+    
+    if (!data) {
+        console.error('数据源不存在:', dataSource);
+        return;
+    }
     
     // 更新所有图表的配置和类型
     chartInstances.forEach(({id, instance, type}) => {
         // 重新获取当前应该使用的图表类型
         const newType = getChartTypeForIndex(id, currentLayout);
+        
+        console.log(`图表 ${id}: 类型 ${type} -> ${newType}`);
         
         // 如果图表类型发生变化，更新实例的类型信息
         if (type !== newType) {
@@ -415,21 +439,66 @@ function getChartOption(chartType, data, index) {
         }
     };
     
+    // 根据数据源获取合适的数据
+    function getDataForChart(data) {
+        if (data.production) {
+            return {
+                xData: data.production.map(item => item.department),
+                yData: data.production.map(item => item.output),
+                seriesName: '产量'
+            };
+        } else if (data.monthly) {
+            return {
+                xData: data.monthly.map(item => item.month),
+                yData: data.monthly.map(item => item.production || item.temperature || item.revenue),
+                seriesName: data.monthly[0].production ? '月产量' : data.monthly[0].temperature ? '温度' : '收入'
+            };
+        } else if (data.hourly) {
+            return {
+                xData: data.hourly.map(item => item.time),
+                yData: data.hourly.map(item => item.temperature),
+                seriesName: '温度'
+            };
+        } else if (data.quarterly) {
+            return {
+                xData: data.quarterly.map(item => item.quarter),
+                yData: data.quarterly.map(item => item.revenue),
+                seriesName: '收入'
+            };
+        } else if (data.categories) {
+            return {
+                xData: data.categories.map(item => item.name),
+                yData: data.categories.map(item => item.value1),
+                seriesName: '数值'
+            };
+        } else {
+            // 默认数据
+            const defaultX = ['A', 'B', 'C', 'D', 'E'];
+            return {
+                xData: defaultX,
+                yData: defaultX.map(() => Math.floor(Math.random() * 100) + 50),
+                seriesName: '数据'
+            };
+        }
+    }
+    
+    const chartData = getDataForChart(data);
+    
     switch (chartType) {
         case 'bar':
             return {
                 ...baseOption,
                 xAxis: {
                     type: 'category',
-                    data: data.production ? data.production.map(item => item.department) : ['A', 'B', 'C', 'D', 'E']
+                    data: chartData.xData
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [{
-                    name: '产量',
+                    name: chartData.seriesName,
                     type: 'bar',
-                    data: data.production ? data.production.map(item => item.output) : [120, 200, 150, 80, 70]
+                    data: chartData.yData
                 }]
             };
             
@@ -438,20 +507,24 @@ function getChartOption(chartType, data, index) {
                 ...baseOption,
                 xAxis: {
                     type: 'category',
-                    data: data.monthly ? data.monthly.map(item => item.month) : ['1月', '2月', '3月', '4月', '5月', '6月']
+                    data: chartData.xData
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [{
-                    name: '趋势',
+                    name: chartData.seriesName,
                     type: 'line',
                     smooth: true,
-                    data: data.monthly ? data.monthly.map(item => item.production) : [820, 932, 901, 934, 1290, 1330]
+                    data: chartData.yData
                 }]
             };
             
         case 'pie':
+            const pieData = data.categories ? 
+                data.categories.map(item => ({ name: item.name, value: item.value1 || item.value || 100 })) :
+                chartData.xData.map((name, i) => ({ name, value: chartData.yData[i] || 50 }));
+            
             return {
                 ...baseOption,
                 tooltip: {
@@ -461,20 +534,19 @@ function getChartOption(chartType, data, index) {
                     name: '占比',
                     type: 'pie',
                     radius: '65%',
-                    data: data.categories ? data.categories.map(item => ({
-                        name: item.name,
-                        value: item.value1
-                    })) : [
-                        {name: '类别A', value: 1048},
-                        {name: '类别B', value: 735},
-                        {name: '类别C', value: 580},
-                        {name: '类别D', value: 484},
-                        {name: '类别E', value: 300}
-                    ]
+                    data: pieData
                 }]
             };
             
         case 'scatter':
+            let scatterData;
+            if (data.comparison) {
+                scatterData = data.comparison.map(item => [item.series1, item.series2]);
+            } else {
+                // 使用现有数据生成散点数据
+                scatterData = chartData.yData.map((value, i) => [i + 1, value]);
+            }
+            
             return {
                 ...baseOption,
                 xAxis: {
@@ -486,8 +558,7 @@ function getChartOption(chartType, data, index) {
                 series: [{
                     name: '数据点',
                     type: 'scatter',
-                    data: data.comparison ? data.comparison.map(item => [item.series1, item.series2]) : 
-                        [[10.0, 8.04], [8.0, 6.95], [13.0, 7.58], [9.0, 8.81], [11.0, 8.33]]
+                    data: scatterData
                 }]
             };
             
@@ -496,17 +567,17 @@ function getChartOption(chartType, data, index) {
                 ...baseOption,
                 xAxis: {
                     type: 'category',
-                    data: data.monthly ? data.monthly.map(item => item.month) : ['1月', '2月', '3月', '4月', '5月', '6月']
+                    data: chartData.xData
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [{
-                    name: '面积',
+                    name: chartData.seriesName,
                     type: 'line',
                     smooth: true,
                     areaStyle: {},
-                    data: data.monthly ? data.monthly.map(item => item.cost) : [8200, 9320, 9010, 9340, 12900, 13300]
+                    data: chartData.yData
                 }]
             };
             
