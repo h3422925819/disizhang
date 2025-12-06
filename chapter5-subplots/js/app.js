@@ -164,6 +164,7 @@ function generateFactoryData() {
 // 生成气候模拟数据
 function generateClimateData() {
     const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
+    const months = ['1月', '2月', '3月', '4月', '5月', '6月'];
     
     return {
         hourly: hours.map(hour => ({
@@ -177,6 +178,13 @@ function generateClimateData() {
             high: Math.random() * 10 + 25,
             low: Math.random() * 10 + 15,
             rainfall: Math.random() * 50
+        })),
+        // 添加月份数据以支持月度显示
+        monthly: months.map(month => ({
+            month: month,
+            temperature: Math.random() * 15 + 20,
+            humidity: Math.random() * 30 + 50,
+            rainfall: Math.random() * 100
         }))
     };
 }
@@ -198,6 +206,12 @@ function generateSalesData() {
             sales: Math.floor(Math.random() * 10000) + 5000,
             profit: Math.floor(Math.random() * 2000) + 500,
             satisfaction: Math.floor(Math.random() * 20) + 80
+        })),
+        // 添加月份数据以支持月度显示
+        monthly: ['1月', '2月', '3月', '4月', '5月', '6月'].map(month => ({
+            month: month,
+            revenue: Math.floor(Math.random() * 80000) + 40000,
+            profit: Math.floor(Math.random() * 20000) + 8000
         }))
     };
 }
@@ -309,6 +323,7 @@ function createSubplot(index, layoutType) {
     
     // 确定图表类型
     let chartType = getChartTypeForIndex(index, layoutType);
+    console.log(`创建子图 ${index}: 布局=${layoutType}, 类型=${chartType}`);
     
     subplot.innerHTML = `
         <div class="subplot-header">
@@ -338,6 +353,9 @@ function createSubplot(index, layoutType) {
                 instance: chart,
                 type: chartType
             });
+            console.log(`图表实例创建成功: id=${index}, type=${chartType}`);
+        } else {
+            console.error(`图表容器未找到: chart-${index}`);
         }
     }, 50);
     
@@ -399,20 +417,32 @@ function applyDataToCharts() {
     
     console.log('应用数据源:', dataSource, '数据:', data);
     console.log('当前图表实例数量:', chartInstances.length);
+    console.log('当前布局:', currentLayout);
     
     if (!data) {
         console.error('数据源不存在:', dataSource);
-        return;
+        // 使用默认数据避免图表空白
+        const defaultData = { categories: [{name: 'A', value1: 100}, {name: 'B', value1: 200}] };
+        data = defaultData;
     }
+    
+    // 获取用户选择的图表类型
+    const chartTypeSelect = document.getElementById('chartType');
+    const selectedChartType = chartTypeSelect ? chartTypeSelect.value : 'auto';
+    
+    console.log('用户选择的图表类型:', selectedChartType);
     
     // 更新所有图表的配置
     chartInstances.forEach(({id, instance}) => {
         // 获取当前应该使用的图表类型
         const chartType = getChartTypeForIndex(id, currentLayout);
         
-        console.log(`图表 ${id}: 类型 ${chartType}`);
+        console.log(`图表 ${id}: 类型 ${chartType}, 选中类型: ${selectedChartType}`);
         
-        const option = getChartOption(chartType, data, id);
+        // 强制使用用户选择的类型
+        const finalChartType = selectedChartType !== 'auto' ? selectedChartType : chartType;
+        
+        const option = getChartOption(finalChartType, data, id);
         instance.setOption(option, true);
     });
 }
@@ -704,7 +734,8 @@ function toggleFullscreen() {
 
 // 更新图表类型
 function updateChartType() {
-    // 重新生成布局以确保图表类型正确
+    console.log('图表类型变更，重新生成布局');
+    // 强制重新生成布局以确保图表类型正确
     generateLayout();
 }
 
