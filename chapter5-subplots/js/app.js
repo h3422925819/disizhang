@@ -364,31 +364,46 @@ function createSubplot(index, layoutType) {
 
 // 根据索引确定图表类型
 function getChartTypeForIndex(index, layoutType) {
-    const chartTypes = ['bar', 'line', 'pie', 'scatter', 'area', 'radar'];
-    
-    // 检查用户是否选择了统一图表类型
-    const chartTypeSelect = document.getElementById('chartType');
-    if (!chartTypeSelect) {
-        return 'bar'; // 备用方案
+    // 强制获取用户选择的图表类型
+    try {
+        const chartTypeSelect = document.getElementById('chartType');
+        if (!chartTypeSelect) {
+            console.error('图表类型选择器不存在');
+            return 'bar';
+        }
+        
+        const selectedChartType = chartTypeSelect.value;
+        console.log(`图表类型选择: index=${index}, layout=${layoutType}, selected=${selectedChartType}`);
+        
+        // 如果用户选择了特定类型，强制使用该类型
+        if (selectedChartType !== 'auto') {
+            console.log(`返回用户选择的类型: ${selectedChartType}`);
+            return selectedChartType;
+        }
+        
+        // 自动分配模式
+        const chartTypes = ['bar', 'line', 'pie', 'scatter', 'area', 'radar'];
+        let autoType;
+        
+        if (layoutType === 'grid') {
+            autoType = chartTypes[index % chartTypes.length];
+        } else if (layoutType === 'horizontal') {
+            autoType = ['bar', 'line', 'area'][index] || 'bar';
+        } else if (layoutType === 'vertical') {
+            autoType = ['line', 'area', 'candlestick'][index] || 'bar';
+        } else if (layoutType === 'mixed') {
+            autoType = ['bar', 'pie', 'line', 'radar'][index] || 'bar';
+        } else {
+            autoType = 'bar';
+        }
+        
+        console.log(`返回自动分配的类型: ${autoType}`);
+        return autoType;
+        
+    } catch (error) {
+        console.error('获取图表类型时出错:', error);
+        return 'bar';
     }
-    
-    const selectedChartType = chartTypeSelect.value;
-    if (selectedChartType !== 'auto') {
-        return selectedChartType;
-    }
-    
-    // 自动分配模式
-    if (layoutType === 'grid') {
-        return chartTypes[index % chartTypes.length];
-    } else if (layoutType === 'horizontal') {
-        return ['bar', 'line', 'area'][index];
-    } else if (layoutType === 'vertical') {
-        return ['line', 'area', 'candlestick'][index];
-    } else if (layoutType === 'mixed') {
-        return ['bar', 'pie', 'line', 'radar'][index];
-    }
-    
-    return 'bar';
 }
 
 // 获取图表标题
@@ -409,42 +424,60 @@ function getChartTitle(chartType, index) {
 
 // 应用数据到图表
 function applyDataToCharts() {
+    console.log('=== 开始应用数据到图表 ===');
+    
     const dataSourceSelect = document.getElementById('dataSource');
-    if (!dataSourceSelect) return;
+    const chartTypeSelect = document.getElementById('chartType');
     
-    const dataSource = dataSourceSelect.value;
-    const data = chartsData[dataSource];
-    
-    console.log('应用数据源:', dataSource, '数据:', data);
-    console.log('当前图表实例数量:', chartInstances.length);
-    console.log('当前布局:', currentLayout);
-    
-    if (!data) {
-        console.error('数据源不存在:', dataSource);
-        // 使用默认数据避免图表空白
-        const defaultData = { categories: [{name: 'A', value1: 100}, {name: 'B', value1: 200}] };
-        data = defaultData;
+    if (!dataSourceSelect || !chartTypeSelect) {
+        console.error('DOM元素不存在');
+        return;
     }
     
-    // 获取用户选择的图表类型
-    const chartTypeSelect = document.getElementById('chartType');
-    const selectedChartType = chartTypeSelect ? chartTypeSelect.value : 'auto';
+    const dataSource = dataSourceSelect.value;
+    const selectedChartType = chartTypeSelect.value;
     
-    console.log('用户选择的图表类型:', selectedChartType);
+    console.log('选择的数据源:', dataSource);
+    console.log('选择的图表类型:', selectedChartType);
     
-    // 更新所有图表的配置
-    chartInstances.forEach(({id, instance}) => {
-        // 获取当前应该使用的图表类型
-        const chartType = getChartTypeForIndex(id, currentLayout);
+    let data = chartsData[dataSource];
+    if (!data) {
+        console.error('数据源不存在:', dataSource);
+        // 创建默认数据
+        data = { 
+            monthly: [
+                {month: '1月', value: 100},
+                {month: '2月', value: 200}
+            ]
+        };
+        chartsData[dataSource] = data;
+    }
+    
+    console.log('使用的数据:', data);
+    console.log('图表实例数量:', chartInstances.length);
+    
+    // 更新所有图表
+    chartInstances.forEach(({id, instance}, index) => {
+        console.log(`\n--- 处理图表 ${index} (ID: ${id}) ---`);
         
-        console.log(`图表 ${id}: 类型 ${chartType}, 选中类型: ${selectedChartType}`);
+        // 获取最终图表类型
+        const finalChartType = selectedChartType !== 'auto' ? selectedChartType : getChartTypeForIndex(id, currentLayout);
+        console.log(`最终图表类型: ${finalChartType}`);
         
-        // 强制使用用户选择的类型
-        const finalChartType = selectedChartType !== 'auto' ? selectedChartType : chartType;
-        
+        // 生成图表配置
         const option = getChartOption(finalChartType, data, id);
-        instance.setOption(option, true);
+        console.log(`生成的配置:`, option);
+        
+        // 应用配置
+        try {
+            instance.setOption(option, true);
+            console.log(`图表 ${id} 更新成功`);
+        } catch (error) {
+            console.error(`图表 ${id} 更新失败:`, error);
+        }
     });
+    
+    console.log('=== 数据应用完成 ===\n');
 }
 
 // 获取图表配置
@@ -837,6 +870,57 @@ window.addEventListener('resize', () => {
         instance.resize();
     });
 });
+
+// 调试函数
+function debugChartTypes() {
+    console.log('=== 图表类型调试 ===');
+    const chartTypeSelect = document.getElementById('chartType');
+    console.log('图表类型选择器:', chartTypeSelect);
+    if (chartTypeSelect) {
+        console.log('当前选择的图表类型:', chartTypeSelect.value);
+    }
+    
+    console.log('图表实例数量:', chartInstances.length);
+    chartInstances.forEach(({id, type, instance}) => {
+        console.log(`实例 ${id}: 类型=${type}, 实例存在=${!!instance}`);
+    });
+    
+    // 测试强制更新为折线图
+    const layoutType = document.getElementById('layoutType').value;
+    console.log('当前布局类型:', layoutType);
+    
+    // 重新应用数据
+    applyDataToCharts();
+}
+
+function debugDataSources() {
+    console.log('=== 数据源调试 ===');
+    console.log('所有数据源:', Object.keys(chartsData));
+    
+    Object.keys(chartsData).forEach(key => {
+        const data = chartsData[key];
+        console.log(`数据源 ${key}:`, data);
+        if (data && typeof data === 'object') {
+            console.log(`  可用字段: ${Object.keys(data)}`);
+            Object.keys(data).forEach(field => {
+                if (Array.isArray(data[field])) {
+                    console.log(`  ${field}: 数组，长度=${data[field].length}`);
+                    if (data[field].length > 0) {
+                        console.log(`    第一项:`, data[field][0]);
+                    }
+                }
+            });
+        }
+    });
+    
+    // 测试当前选择的数据源
+    const dataSourceSelect = document.getElementById('dataSource');
+    if (dataSourceSelect) {
+        const selectedSource = dataSourceSelect.value;
+        console.log('当前选择的数据源:', selectedSource);
+        console.log('选择的数据源数据:', chartsData[selectedSource]);
+    }
+}
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', initializeApp);

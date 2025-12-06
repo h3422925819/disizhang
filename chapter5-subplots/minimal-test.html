@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最小化测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .chart-container { width: 400px; height: 300px; margin: 10px; border: 1px solid #ddd; display: inline-block; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>最小化功能测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 基本图表测试</h2>
+        <button onclick="createLineChart()">创建折线图</button>
+        <button onclick="createBarChart()">创建柱状图</button>
+        <div id="basic-charts"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 数据源测试</h2>
+        <button onclick="testAllDataSources()">测试所有数据源</button>
+        <div id="data-output"></div>
+    </div>
+
+    <script>
+        function createLineChart() {
+            const container = document.createElement('div');
+            container.className = 'chart-container';
+            container.id = 'line-chart';
+            
+            document.getElementById('basic-charts').appendChild(container);
+            
+            const chart = echarts.init(container);
+            const option = {
+                xAxis: { type: 'category', data: ['A', 'B', 'C', 'D'] },
+                yAxis: { type: 'value' },
+                series: [{ type: 'line', data: [10, 20, 30, 40] }]
+            };
+            
+            chart.setOption(option);
+            console.log('折线图创建成功');
+        }
+        
+        function createBarChart() {
+            const container = document.createElement('div');
+            container.className = 'chart-container';
+            container.id = 'bar-chart';
+            
+            document.getElementById('basic-charts').appendChild(container);
+            
+            const chart = echarts.init(container);
+            const option = {
+                xAxis: { type: 'category', data: ['A', 'B', 'C', 'D'] },
+                yAxis: { type: 'value' },
+                series: [{ type: 'bar', data: [40, 30, 20, 10] }]
+            };
+            
+            chart.setOption(option);
+            console.log('柱状图创建成功');
+        }
+        
+        function generateFactoryData() {
+            return {
+                production: [
+                    {department: '生产一部', output: 4500},
+                    {department: '生产二部', output: 3800}
+                ],
+                monthly: [
+                    {month: '1月', production: 15000},
+                    {month: '2月', production: 18000}
+                ]
+            };
+        }
+        
+        function generateClimateData() {
+            return {
+                hourly: [
+                    {time: '00:00', temperature: 22.5},
+                    {time: '01:00', temperature: 22.1}
+                ],
+                monthly: [
+                    {month: '1月', temperature: 20},
+                    {month: '2月', temperature: 22}
+                ]
+            };
+        }
+        
+        function generateSalesData() {
+            return {
+                quarterly: [
+                    {quarter: 'Q1', revenue: 80000},
+                    {quarter: 'Q2', revenue: 95000}
+                ],
+                monthly: [
+                    {month: '1月', revenue: 25000},
+                    {month: '2月', revenue: 30000}
+                ]
+            };
+        }
+        
+        function generateMixedData() {
+            return {
+                categories: [
+                    {name: '类别A', value1: 100},
+                    {name: '类别B', value1: 150}
+                ],
+                monthly: [
+                    {month: '1月', value: 50},
+                    {month: '2月', value: 75}
+                ]
+            };
+        }
+        
+        function testAllDataSources() {
+            const output = document.getElementById('data-output');
+            output.innerHTML = '';
+            
+            const dataSources = {
+                factory: generateFactoryData(),
+                climate: generateClimateData(),
+                sales: generateSalesData(),
+                mixed: generateMixedData()
+            };
+            
+            Object.keys(dataSources).forEach(source => {
+                const data = dataSources[source];
+                console.log(`数据源 ${source}:`, data);
+                
+                // 创建测试图表
+                const container = document.createElement('div');
+                container.className = 'chart-container';
+                container.style.width = '300px';
+                container.style.height = '200px';
+                
+                output.appendChild(container);
+                
+                const chart = echarts.init(container);
+                
+                let option;
+                if (data.monthly) {
+                    option = {
+                        xAxis: { type: 'category', data: data.monthly.map(item => item.month) },
+                        yAxis: { type: 'value' },
+                        series: [{ 
+                            type: 'line', 
+                            data: data.monthly.map(item => item.production || item.temperature || item.revenue || item.value || 50)
+                        }]
+                    };
+                } else if (data.categories) {
+                    option = {
+                        series: [{
+                            type: 'pie',
+                            data: data.categories.map(item => ({ name: item.name, value: item.value1 }))
+                        }]
+                    };
+                }
+                
+                chart.setOption(option);
+                
+                // 添加标签
+                const label = document.createElement('div');
+                label.textContent = `${source}: ${data.monthly ? 'monthly data' : 'categories data'}`;
+                label.style.textAlign = 'center';
+                label.style.marginTop = '5px';
+                output.appendChild(label);
+            });
+        }
+    </script>
+</body>
+</html>
