@@ -1,0 +1,51 @@
+{
+  "hourly": [
+    {"time": "00:00", "temperature": 22.5, "humidity": 65, "pressure": 1013, "windSpeed": 5.2},
+    {"time": "01:00", "temperature": 22.1, "humidity": 67, "pressure": 1012, "windSpeed": 4.8},
+    {"time": "02:00", "temperature": 21.8, "humidity": 69, "pressure": 1012, "windSpeed": 4.5},
+    {"time": "03:00", "temperature": 21.5, "humidity": 71, "pressure": 1011, "windSpeed": 4.2},
+    {"time": "04:00", "temperature": 21.2, "humidity": 73, "pressure": 1011, "windSpeed": 4.0},
+    {"time": "05:00", "temperature": 21.0, "humidity": 74, "pressure": 1012, "windSpeed": 3.8},
+    {"time": "06:00", "temperature": 21.5, "humidity": 72, "pressure": 1013, "windSpeed": 4.1},
+    {"time": "07:00", "temperature": 22.8, "humidity": 68, "pressure": 1014, "windSpeed": 4.6},
+    {"time": "08:00", "temperature": 24.5, "humidity": 62, "pressure": 1015, "windSpeed": 5.5},
+    {"time": "09:00", "temperature": 26.8, "humidity": 58, "pressure": 1016, "windSpeed": 6.2},
+    {"time": "10:00", "temperature": 28.9, "humidity": 54, "pressure": 1016, "windSpeed": 7.1},
+    {"time": "11:00", "temperature": 30.2, "humidity": 50, "pressure": 1017, "windSpeed": 7.8},
+    {"time": "12:00", "temperature": 31.5, "humidity": 48, "pressure": 1017, "windSpeed": 8.2},
+    {"time": "13:00", "temperature": 32.1, "humidity": 46, "pressure": 1016, "windSpeed": 8.5},
+    {"time": "14:00", "temperature": 31.8, "humidity": 47, "pressure": 1016, "windSpeed": 8.3},
+    {"time": "15:00", "temperature": 31.2, "humidity": 49, "pressure": 1015, "windSpeed": 7.9},
+    {"time": "16:00", "temperature": 30.1, "humidity": 52, "pressure": 1015, "windSpeed": 7.4},
+    {"time": "17:00", "temperature": 28.7, "humidity": 55, "pressure": 1014, "windSpeed": 6.8},
+    {"time": "18:00", "temperature": 27.2, "humidity": 58, "pressure": 1014, "windSpeed": 6.2},
+    {"time": "19:00", "temperature": 25.8, "humidity": 61, "pressure": 1013, "windSpeed": 5.7},
+    {"time": "20:00", "temperature": 24.5, "humidity": 63, "pressure": 1013, "windSpeed": 5.3},
+    {"time": "21:00", "temperature": 23.5, "humidity": 64, "pressure": 1013, "windSpeed": 5.0},
+    {"time": "22:00", "temperature": 22.9, "humidity": 65, "pressure": 1013, "windSpeed": 4.8},
+    {"time": "23:00", "temperature": 22.7, "humidity": 65, "pressure": 1013, "windSpeed": 4.6}
+  ],
+  "daily": [
+    {"day": "周一", "high": 28, "low": 20, "rainfall": 2.5, "sunshine": 6.5},
+    {"day": "周二", "high": 30, "low": 22, "rainfall": 0, "sunshine": 8.2},
+    {"day": "周三", "high": 29, "low": 21, "rainfall": 1.2, "sunshine": 7.1},
+    {"day": "周四", "high": 27, "low": 19, "rainfall": 8.5, "sunshine": 3.2},
+    {"day": "周五", "high": 26, "low": 18, "rainfall": 12.3, "sunshine": 2.1},
+    {"day": "周六", "high": 28, "low": 20, "rainfall": 0.5, "sunshine": 7.8},
+    {"day": "周日", "high": 31, "low": 23, "rainfall": 0, "sunshine": 9.1}
+  ],
+  "monthly": [
+    {"month": "1月", "avgTemp": 5.2, "rainfall": 45, "humidity": 68, "sunnyDays": 12},
+    {"month": "2月", "avgTemp": 7.8, "rainfall": 52, "humidity": 65, "sunnyDays": 10},
+    {"month": "3月", "avgTemp": 12.5, "rainfall": 68, "humidity": 62, "sunnyDays": 14},
+    {"month": "4月", "avgTemp": 18.9, "rainfall": 85, "humidity": 58, "sunnyDays": 16},
+    {"month": "5月", "avgTemp": 24.1, "rainfall": 102, "humidity": 65, "sunnyDays": 18},
+    {"month": "6月", "avgTemp": 28.5, "rainfall": 156, "humidity": 72, "sunnyDays": 15},
+    {"month": "7月", "avgTemp": 32.1, "rainfall": 189, "humidity": 75, "sunnyDays": 20},
+    {"month": "8月", "avgTemp": 31.8, "rainfall": 175, "humidity": 74, "sunnyDays": 19},
+    {"month": "9月", "avgTemp": 26.7, "rainfall": 95, "humidity": 68, "sunnyDays": 17},
+    {"month": "10月", "avgTemp": 20.3, "rainfall": 62, "humidity": 64, "sunnyDays": 15},
+    {"month": "11月", "avgTemp": 13.8, "rainfall": 48, "humidity": 66, "sunnyDays": 12},
+    {"month": "12月", "avgTemp": 7.2, "rainfall": 38, "humidity": 67, "sunnyDays": 10}
+  ]
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第5章 子图绘制 - 数据可视化</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>第5章 子图绘制</h1>
+            <p>多图表布局与子图组合可视化技术</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- 控制面板 -->
+            <section class="control-panel">
+                <h2>子图布局控制</h2>
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="layoutType">布局类型:</label>
+                        <select id="layoutType">
+                            <option value="grid">网格布局</option>
+                            <option value="horizontal">水平排列</option>
+                            <option value="vertical">垂直排列</option>
+                            <option value="mixed">混合布局</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="rowsCount">行数:</label>
+                        <input type="number" id="rowsCount" min="1" max="4" value="2">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="colsCount">列数:</label>
+                        <input type="number" id="colsCount" min="1" max="4" value="2">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="chartType">统一图表类型:</label>
+                        <select id="chartType">
+                            <option value="auto">自动分配</option>
+                            <option value="bar">柱状图</option>
+                            <option value="line">折线图</option>
+                            <option value="pie">饼图</option>
+                            <option value="scatter">散点图</option>
+                            <option value="area">面积图</option>
+                            <option value="radar">雷达图</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="dataSource">数据源:</label>
+                        <select id="dataSource">
+                            <option value="factory">工厂生产数据</option>
+                            <option value="climate">气候环境数据</option>
+                            <option value="sales">销售业绩数据</option>
+                            <option value="mixed">混合数据集</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="syncMode">同步模式:</label>
+                        <select id="syncMode">
+                            <option value="none">无同步</option>
+                            <option value="x-axis">X轴同步</option>
+                            <option value="y-axis">Y轴同步</option>
+                            <option value="both">双向同步</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button id="generateLayout" class="btn-primary">生成布局</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 图表预设模板 -->
+            <section class="preset-panel">
+                <h2>预设布局模板</h2>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="applyPreset('dashboard')">
+                        <span class="preset-icon">📊</span>
+                        <span class="preset-text">仪表盘布局</span>
+                    </button>
+                    <button class="preset-btn" onclick="applyPreset('analysis')">
+                        <span class="preset-icon">📈</span>
+                        <span class="preset-text">分析对比</span>
+                    </button>
+                    <button class="preset-btn" onclick="applyPreset('trend')">
+                        <span class="preset-icon">📉</span>
+                        <span class="preset-text">趋势分析</span>
+                    </button>
+                    <button class="preset-btn" onclick="applyPreset('comparison')">
+                        <span class="preset-icon">⚖️</span>
+                        <span class="preset-text">对比分析</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 子图展示区域 -->
+            <section class="subplots-section">
+                <h2>子图展示区域</h2>
+                <div class="subplots-toolbar">
+                    <button class="btn-secondary" onclick="resetAllCharts()">重置所有</button>
+                    <button class="btn-secondary" onclick="exportAllCharts()">导出全部</button>
+                    <button class="btn-secondary" onclick="toggleFullscreen()">全屏显示</button>
+                </div>
+                <div id="subplotsContainer" class="subplots-container">
+                    <!-- 子图将动态生成在这里 -->
+                </div>
+            </section>
+
+            <!-- 图表配置面板 -->
+            <section class="config-panel">
+                <h2>图表配置</h2>
+                <div class="config-tabs">
+                    <button class="tab-btn active" onclick="switchTab('general')">通用设置</button>
+                    <button class="tab-btn" onclick="switchTab('individual')">单独设置</button>
+                    <button class="tab-btn" onclick="switchTab('advanced')">高级选项</button>
+                </div>
+                <div id="generalTab" class="tab-content active">
+                    <div class="config-group">
+                        <label>主题色彩:</label>
+                        <div class="color-options">
+                            <button class="color-btn" data-theme="default" style="background: #00d2d3"></button>
+                            <button class="color-btn" data-theme="bright" style="background: #ff9ff3"></button>
+                            <button class="color-btn" data-theme="vibrant" style="background: #ee5a24"></button>
+                            <button class="color-btn" data-theme="neon" style="background: #00f5ff"></button>
+                        </div>
+                    </div>
+                    <div class="config-group">
+                        <label>动画效果:</label>
+                        <input type="checkbox" id="animationToggle" checked>
+                    </div>
+                </div>
+                <div id="individualTab" class="tab-content">
+                    <p>选择单个图表进行配置...</p>
+                </div>
+                <div id="advancedTab" class="tab-content">
+                    <p>高级配置选项...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 第5章 子图绘制 - 数据可视化项目</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
